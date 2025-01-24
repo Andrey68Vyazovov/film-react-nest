@@ -89,6 +89,6 @@ export class CreateFilmDto {
   readonly schedule: GetScheduleDto[];
 }
 export class FilmScheduleParams {
-  @IsMongoId()
+  @IsString()
   id: string;
 }
