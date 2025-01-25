@@ -1,10 +1,10 @@
 import { Module } from '@nestjs/common';
-import {ServeStaticModule} from "@nestjs/serve-static";
-import {ConfigModule, ConfigService} from "@nestjs/config";
-import * as path from "node:path";
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import * as path from 'node:path';
 import { MongooseModule } from '@nestjs/mongoose';
 
-import {configProvider} from "./app.config.provider";
+import { configProvider } from './app.config.provider';
 import { FilmsController } from './films/films.controller';
 import { FilmsService } from './films/films.service';
 import { OrderController } from './order/order.controller';
@@ -30,7 +30,7 @@ import { FilmsModule } from './films/films.module';
         uri: configService.get<string>('DATABASE_URL'),
       }),
       inject: [ConfigService],
-  }),
+    }),
     FilmsModule,
     OrderModule,
   ],

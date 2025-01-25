@@ -38,9 +38,9 @@ export class OrderService {
       }
     }
 
-      for(const film of films){
-         await this.filmsRepository.updateFilmSchedule(film.id, film.schedule);
-        }      
+    for (const film of films) {
+      await this.filmsRepository.updateFilmSchedule(film.id, film.schedule);
+    }
 
     return {
       total: reservedTickets.length,

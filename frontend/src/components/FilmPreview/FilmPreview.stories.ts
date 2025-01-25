@@ -3,7 +3,7 @@ import { fn } from '@storybook/test';
 import { FilmPreview } from './FilmPreview';
 import {CDN_URL} from "../../utils/constants.ts";
 
-const meta = {
+const meta:Meta<typeof FilmPreview> = {
   title: 'UI/FilmPreview',
   component: FilmPreview,
   parameters: {

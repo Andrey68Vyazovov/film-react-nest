@@ -31,8 +31,8 @@ export default class FilmsRepository implements IFilmsRepository {
         .findOne({ id: id })
         .lean<GetFilmDto>()
         .orFail(() => new NotFoundException(`Film with id ${id} not found`));
-    } catch(e){
-       throw new NotFoundException(`Film with id ${id} not found`);
+    } catch (e) {
+      throw new NotFoundException(`Film with id ${id} not found`);
     }
   }
 
@@ -45,11 +45,12 @@ export default class FilmsRepository implements IFilmsRepository {
       { $set: { schedule } },
     );
     if (result.modifiedCount === 0) {
-      throw new NotFoundException(`Could not update schedule for film with ID ${id}.`);
+      throw new NotFoundException(
+        `Could not update schedule for film with ID ${id}.`,
+      );
     }
     return true;
   }
-
 
   async getFilmSchedule(id: string): Promise<ScheduleDto[]> {
     const film = await this.findById(id);
@@ -60,5 +61,4 @@ export default class FilmsRepository implements IFilmsRepository {
 
     return film.schedule;
   }
-
 }

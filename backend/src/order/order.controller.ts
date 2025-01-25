@@ -11,4 +11,4 @@ export class OrderController {
     const orderData = await this.orderService.reserveSeats(orderDTO);
     return { items: orderData };
   }
-}   
+}

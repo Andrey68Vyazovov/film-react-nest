@@ -1,5 +1,4 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { fn } from '@storybook/test';
 import { Layout } from './Layout';
 
 const meta = {
@@ -8,12 +7,21 @@ const meta = {
   parameters: {
     layout: 'centered',
   },
-  args: {},
+  argTypes: {
+    isLocked: { control: 'boolean' },
+  },
+  args: {
+    children: 'Default content',
+    isLocked: false,
+  }
 } satisfies Meta<typeof Layout>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
-  args: {},
+  args: {
+    children: 'Default content',
+    isLocked: false,
+  },
 };

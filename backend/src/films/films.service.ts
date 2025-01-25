@@ -1,7 +1,9 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import FilmsRepository, { IFilmsRepository } from '../repository/film.repository';
+import FilmsRepository, {
+  IFilmsRepository,
+} from '../repository/film.repository';
 import { ConfigService } from '@nestjs/config';
-import {  GetFilmDto, GetScheduleDto } from './dto/films.dto';
+import { GetFilmDto, GetScheduleDto } from './dto/films.dto';
 
 @Injectable()
 export class FilmsService {
@@ -40,7 +42,6 @@ export class FilmsService {
   }
 
   async findAll(): Promise<{ total: number; items: GetFilmDto[] }> {
-   
     return this.handleDatabaseOperation(
       () => this.filmsRepository.findAll(),
       'get all films',
@@ -49,7 +50,6 @@ export class FilmsService {
   async findById(
     id: string,
   ): Promise<{ total: number; items: GetScheduleDto[] }> {
-   
     return this.handleDatabaseOperation(async () => {
       const result = await this.filmsRepository.findById(id);
       return { total: result.schedule.length, items: result.schedule };

@@ -8,7 +8,6 @@ import {
   IsInt,
   Min,
   Max,
-  IsMongoId,
 } from 'class-validator';
 
 export class ScheduleDto {
