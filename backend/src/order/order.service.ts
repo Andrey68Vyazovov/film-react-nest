@@ -2,12 +2,16 @@ import { Injectable } from '@nestjs/common';
 import { IFilmsRepository } from '../repository/film.repository';
 import { OrderDTO } from './dto/order.dto';
 import FilmsMongoRepository from '../repository/film.repository';
+import { OrdersRepository } from '../repository/order.repository';
 
 @Injectable()
 export class OrderService {
   private filmsRepository: IFilmsRepository;
 
-  constructor(private readonly filmsMongoRepository: FilmsMongoRepository) {
+  constructor(
+    private readonly filmsMongoRepository: FilmsMongoRepository,
+    private readonly ordersRepository: OrdersRepository, 
+  ) {
     this.filmsRepository = this.filmsMongoRepository;
   }
 
@@ -42,7 +46,8 @@ export class OrderService {
       await this.filmsRepository.updateFilmSchedule(film.id, film.schedule);
     }
 
-    return {
+    this.ordersRepository.createOrder(orderDTO); // Сохранение заказа
+     return {
       total: reservedTickets.length,
       items: reservedTickets,
     };

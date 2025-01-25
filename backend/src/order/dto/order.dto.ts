@@ -1,7 +1,7 @@
 //TODO реализовать DTO для /orders
 
 import { Type } from 'class-transformer';
-import { IsString, IsNumber, IsArray } from 'class-validator';
+import { IsString, IsNumber, IsArray, IsDate } from 'class-validator';
 
 export class TicketDTO {
   @IsString()
@@ -9,6 +9,9 @@ export class TicketDTO {
 
   @IsString()
   session: string;
+
+  @IsDate()
+  daytime: Date;
 
   @IsNumber()
   row: number;

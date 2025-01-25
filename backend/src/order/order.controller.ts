@@ -9,6 +9,6 @@ export class OrderController {
   @Post()
   async createOrder(@Body() orderDTO: OrderDTO) {
     const orderData = await this.orderService.reserveSeats(orderDTO);
-    return { items: orderData };
+    return { orderData };
   }
 }

@@ -9,6 +9,6 @@ import { FilmsModule } from '../films/films.module';
   imports: [ConfigModule, FilmsModule],
   controllers: [OrderController],
   providers: [OrdersRepository, OrderService],
-  exports: [OrderService],
+  exports: [OrderService, OrdersRepository],
 })
 export class OrderModule {}
