@@ -30,12 +30,16 @@ export class OrderService {
       const selectedPlace = `${row}:${seat}`;
 
       const schedule = film.schedule.find((s) => s.id === session);
+      const daytime = ticket.daytime;
+      const price = ticket.price;
 
       if (!schedule.taken.includes(selectedPlace)) {
         reservedTickets.push({
           film: filmId,
           session,
+          daytime,
           row,
+          price,
           seat,
         });
         schedule.taken.push(selectedPlace);

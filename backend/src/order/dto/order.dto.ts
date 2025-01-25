@@ -1,7 +1,7 @@
 //TODO реализовать DTO для /orders
 
 import { Type } from 'class-transformer';
-import { IsString, IsNumber, IsArray, IsDate } from 'class-validator';
+import { IsString, IsNumber, IsArray, IsDate, IsOptional } from 'class-validator';
 
 export class TicketDTO {
   @IsString()
@@ -18,9 +18,16 @@ export class TicketDTO {
 
   @IsNumber()
   seat: number;
+
+  @IsNumber()
+  price: number;
 }
 
 export class OrderDTO {
+  @IsString()
+  @IsOptional()
+  id?: string;
+
   @IsString()
   email: string;
 
