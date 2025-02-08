@@ -3,7 +3,7 @@ import { fn } from '@storybook/test';
 import { Card } from './Card';
 import {CDN_URL} from "../../utils/constants.ts";
 
-const meta = {
+const meta: Meta<typeof Card> = {
   title: 'UI/Card',
   component: Card,
   parameters: {
@@ -19,7 +19,8 @@ type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
   args: {
+    id: '1',
     image: `${CDN_URL}/bg1s.jpg`,
-    text: 'Архитекторы общества',
+    title: 'Архитекторы общества',
   },
 };
