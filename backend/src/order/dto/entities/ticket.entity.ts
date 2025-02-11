@@ -1,33 +1,54 @@
 import { Entity, Column, PrimaryGeneratedColumn, ManyToOne } from 'typeorm';
 import { Order } from './order.entity';
+import {
+  IsNumber,
+  IsPositive,
+  IsString,
+  Length,
+  IsDate,
+} from 'class-validator';
 
 @Entity({ name: 'tickets' })
 export class Ticket {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column()
+  @Column({ type: 'varchar', length: 255 })
+  @IsString()
+  @Length(1, 255)
   film: string;
 
-  @Column()
+  @Column({ type: 'varchar', length: 255 })
+  @IsString()
+  @Length(1, 255)
   session: string;
 
-  @Column()
+  @Column({ type: 'timestamp' })
+  @IsDate()
   daytime: Date;
 
-  @Column()
+  @Column({ type: 'date' })
+  @IsDate()
   day: Date;
 
-  @Column()
+  @Column({ type: 'varchar', length: 50 })
+  @IsString()
+  @Length(1, 50)
   time: string;
 
-  @Column()
+  @Column({ type: 'int' })
+  @IsNumber()
+  @IsPositive()
   row: number;
 
-  @Column()
+  @Column({ type: 'int' })
+  @IsNumber()
+  @IsPositive()
   seat: number;
 
-  @Column()
+  @Column({ type: 'float' })
+  @IsNumber()
+  @IsPositive()
   price: number;
 
   @ManyToOne(() => Order, (order) => order.tickets)

@@ -1,60 +1,72 @@
-import { Injectable, Inject } from '@nestjs/common';
+import {
+  Injectable,
+  ConflictException,
+  NotFoundException,
+  Inject,
+} from '@nestjs/common';
 import { IFilmsRepository } from '../repository/film.repository';
 import { OrderDTO } from './dto/order.dto';
-import FilmsMongoRepository from '../repository/film.repository';
-import { OrdersRepository } from '../repository/order.repository';
+import FilmsRepository from '../repository/film.repository';
 
 @Injectable()
 export class OrderService {
-  private filmsRepository: IFilmsRepository;
+  private activeRepository: IFilmsRepository;
 
   constructor(
-    @Inject('FILM_REPOSITORY')
-    private readonly filmsMongoRepository: FilmsMongoRepository,
-    private readonly ordersRepository: OrdersRepository,
+    @Inject('FilmsRepository')
+    private readonly filmsRepository: IFilmsRepository,
   ) {
-    this.filmsRepository = this.filmsMongoRepository;
+    this.activeRepository = this.filmsRepository;
   }
 
-  async reserveSeats(orderDTO: OrderDTO): Promise<any> {
+  async reserveSeat(orderDTO: OrderDTO) {
     const { tickets } = orderDTO;
     const reservedTickets = [];
 
-    const filmIds = Array.from(new Set(tickets.map((ticket) => ticket.film)));
-    const films = await Promise.all(
-      filmIds.map((filmId) => this.filmsRepository.findById(filmId)),
-    );
-
     for (const ticket of tickets) {
-      const { film: filmId, session, row, seat } = ticket;
-      const film = films.find((f) => f.id === filmId);
+      const { film, session, row, seat } = ticket;
       const selectedPlace = `${row}:${seat}`;
+      let selectedFilm;
 
-      const schedule = film.schedule.find((s) => s.id === session);
-      const daytime = ticket.daytime;
-      const price = ticket.price;
+      this.activeRepository instanceof FilmsRepository
+        ? (selectedFilm = await this.activeRepository.findById(film))
+        : (selectedFilm = await this.activeRepository.findById(film, [
+            'schedule',
+          ]));
 
-      if (!schedule.taken.includes(selectedPlace)) {
-        reservedTickets.push({
-          film: filmId,
-          session,
-          daytime,
-          row,
-          price,
-          seat,
-        });
-        schedule.taken.push(selectedPlace);
+      if (!selectedFilm) {
+        throw new NotFoundException(`Film with session ${film} not found`);
       }
-    }
 
-    for (const film of films) {
-      await this.filmsRepository.updateFilmSchedule(film.id, film.schedule);
-    }
+      const schedule = selectedFilm.schedule.find((s) => s.id === session);
+      let taken = schedule.taken;
 
-    this.ordersRepository.createOrder(orderDTO); // Сохранение заказа
-    return {
-      total: reservedTickets.length,
-      items: reservedTickets,
-    };
+      if (!schedule) {
+        throw new NotFoundException(`Film does not have session by ${session}`);
+      }
+
+      if (!Array.isArray(taken)) {
+        taken = taken ? [taken] : [];
+      }
+
+      if (taken.includes(selectedPlace)) {
+        throw new ConflictException(
+          `Seat ${selectedPlace} is not available to reserve`,
+        );
+      }
+
+      taken.push(selectedPlace);
+
+      reservedTickets.push({
+        film,
+        session,
+        row,
+        seat,
+      });
+
+      await this.activeRepository.updateFilm(selectedFilm);
+
+      return reservedTickets;
+    }
   }
 }
