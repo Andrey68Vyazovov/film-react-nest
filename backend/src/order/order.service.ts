@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Inject } from '@nestjs/common';
 import { IFilmsRepository } from '../repository/film.repository';
 import { OrderDTO } from './dto/order.dto';
 import FilmsMongoRepository from '../repository/film.repository';
@@ -9,6 +9,7 @@ export class OrderService {
   private filmsRepository: IFilmsRepository;
 
   constructor(
+    @Inject('FILM_REPOSITORY')
     private readonly filmsMongoRepository: FilmsMongoRepository,
     private readonly ordersRepository: OrdersRepository,
   ) {

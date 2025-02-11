@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, Inject, NotFoundException } from '@nestjs/common';
 import FilmsRepository, {
   IFilmsRepository,
 } from '../repository/film.repository';
@@ -11,6 +11,7 @@ export class FilmsService {
 
   constructor(
     private configService: ConfigService,
+    @Inject('FILM_REPOSITORY')
     private readonly mongoRepository: FilmsRepository,
   ) {
     this.filmsRepository = this.mongoRepository;
