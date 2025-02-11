@@ -1,35 +1,48 @@
-import { Entity, Column, OneToMany, PrimaryColumn } from 'typeorm';
+import { Entity, Column, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import { IsString, IsNumber, IsArray } from 'class-validator';
 import { Schedules } from './schedule.entity';
 
 @Entity({ name: 'films' })
 export class Film {
-  @PrimaryColumn()
+  @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column()
+  @Column({ type: 'varchar', length: 255, nullable: true })
+  @IsString()
   title: string;
 
-  @Column({ nullable: true })
+  @Column({ type: 'varchar', length: 255, nullable: true })
+  @IsString()
   director: string;
 
-  @Column({ nullable: true })
+  @Column({ type: 'text', nullable: true })
+  @IsString()
   description: string;
 
-  @Column({ type: 'float', nullable: true })
+  @Column({ type: 'float', default: 0 })
+  @IsNumber()
   rating: number;
 
-  @Column('text', { array: true, nullable: true })
+  @Column('text', { array: true, default: [] })
+  @IsArray()
+  @IsString({ each: true })
   tags: string[];
 
-  @Column({ nullable: true })
+  @Column({ type: 'text', nullable: true })
+  @IsString()
   about: string;
 
-  @Column({ nullable: true })
+  @Column({ type: 'varchar', length: 255, nullable: true })
+  @IsString()
   image: string;
 
-  @Column({ nullable: true })
+  @Column({ type: 'varchar', length: 255, nullable: true })
+  @IsString()
   cover: string;
 
-  @OneToMany(() => Schedules, (schedule) => schedule.film)
-  schedules: Schedules[];
+  @OneToMany(() => Schedules, (schedule) => schedule.film, {
+    cascade: ['insert', 'update'],
+    eager: true,
+  })
+  schedule: Schedules[];
 }

@@ -1,33 +1,61 @@
-import { Entity, Column, ManyToOne, PrimaryColumn, JoinColumn } from 'typeorm';
+import {
+  Entity,
+  Column,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+  JoinColumn,
+} from 'typeorm';
 import { Film } from './film.entity';
+import {
+  IsNumber,
+  IsString,
+  IsPositive,
+  Min,
+  Max,
+  IsOptional,
+} from 'class-validator';
 
 @Entity({ name: 'schedules' })
 export class Schedules {
-  @PrimaryColumn()
+  @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ type: 'varchar', length: 255, name: 'film_id' })
+  @Column({ type: 'int' })
+  @IsString()
   filmId: string;
 
-  @Column()
-  daytime: Date;
+  @Column({ type: 'varchar', length: 50 })
+  @IsString()
+  daytime: string;
 
-  @Column()
+  @Column({ type: 'int' })
+  @IsNumber()
+  @IsPositive()
   hall: number;
 
-  @Column()
+  @Column({ type: 'int' })
+  @IsString()
+  @Min(1)
+  @Max(100)
   rows: number;
 
-  @Column()
+  @Column({ type: 'int' })
+  @IsNumber()
+  @Min(1)
+  @Max(500)
   seats: number;
 
-  @Column()
+  @Column({ type: 'float' })
+  @IsNumber()
+  @IsPositive()
   price: number;
 
-  @Column('text', { array: true, default: [] })
+  @Column({ type: 'text', nullable: true })
+  @IsOptional()
+  @IsString()
   taken: string[];
 
-  @ManyToOne(() => Film, (film) => film.schedules)
+  @ManyToOne(() => Film, (film) => film.schedule)
   @JoinColumn({ name: 'film_id', referencedColumnName: 'id' })
   film: Film;
 }
