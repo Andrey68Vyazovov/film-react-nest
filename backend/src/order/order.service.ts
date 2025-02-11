@@ -10,7 +10,7 @@ export class OrderService {
 
   constructor(
     private readonly filmsMongoRepository: FilmsMongoRepository,
-    private readonly ordersRepository: OrdersRepository, 
+    private readonly ordersRepository: OrdersRepository,
   ) {
     this.filmsRepository = this.filmsMongoRepository;
   }
@@ -51,7 +51,7 @@ export class OrderService {
     }
 
     this.ordersRepository.createOrder(orderDTO); // Сохранение заказа
-     return {
+    return {
       total: reservedTickets.length,
       items: reservedTickets,
     };
