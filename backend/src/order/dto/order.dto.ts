@@ -1,12 +1,11 @@
 //TODO реализовать DTO для /orders
-
 import { Type } from 'class-transformer';
 import {
   IsString,
   IsNumber,
   IsArray,
-  IsDate,
   IsOptional,
+  ValidateNested,
 } from 'class-validator';
 
 export class TicketDTO {
@@ -16,8 +15,8 @@ export class TicketDTO {
   @IsString()
   session: string;
 
-  @IsDate()
-  daytime: Date;
+  @IsString()
+  daytime: string;
 
   @IsNumber()
   row: number;
@@ -29,18 +28,40 @@ export class TicketDTO {
   price: number;
 }
 
-export class OrderDTO {
-  @IsString()
-  @IsOptional()
-  id?: string;
-
+class ContactsDto {
   @IsString()
   email: string;
 
   @IsString()
   phone: string;
+}
+
+export class OrderDTO extends ContactsDto {
+  @IsString()
+  @IsOptional()
+  id?: string;
 
   @IsArray()
+  @ValidateNested({ each: true })
   @Type(() => TicketDTO)
   tickets: TicketDTO[];
+
+  get getOrderData(): PlaceTicketDto[] {
+    return this.tickets.map((ticket) => ({
+      filmId: ticket.film,
+      sessionId: ticket.session,
+      seatsSelection: `${ticket.row}:${ticket.seat}`,
+    }));
+  }
+}
+
+export class PlaceTicketDto {
+  @IsString()
+  filmId: string;
+
+  @IsString()
+  sessionId: string;
+
+  @IsString()
+  seatsSelection: string;
 }

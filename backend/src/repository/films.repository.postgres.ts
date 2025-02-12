@@ -11,12 +11,12 @@ export class FilmsRepositoryPostgres {
     private readonly filmsRepository: Repository<Film>,
   ) {}
 
-  async findAllFilms(): Promise<{ total: number; items: Film[] }> {
+  async findAll(): Promise<{ total: number; items: Film[] }> {
     const [items, total] = await this.filmsRepository.findAndCount();
     return { total, items };
   }
 
-  async findFilmById(id: string): Promise<Film> {
+  async findById(id: string): Promise<Film> {
     const film = await this.filmsRepository.findOne({
       where: { id },
       relations: { schedule: true },
@@ -28,11 +28,11 @@ export class FilmsRepositoryPostgres {
     return film;
   }
 
-  async updateFilmScheduleById(
+  async updateFilmSchedule(
     id: string,
     schedule: Schedules[],
   ): Promise<{ acknowledged: boolean; modifiedCount: number }> {
-    const film = await this.findFilmById(id);
+    const film = await this.findById(id);
     film.schedule = schedule;
     await this.filmsRepository.save(film);
     return { acknowledged: true, modifiedCount: schedule.length };
