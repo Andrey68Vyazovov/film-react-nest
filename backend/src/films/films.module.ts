@@ -5,6 +5,7 @@ import { ConfigModule } from '@nestjs/config';
 import { Film, FilmSchema } from './films.schema';
 import { FilmsController } from './films.controller';
 import FilmsRepository from '../repository/film.repository';
+import { FilmsRepositoryPostgres } from '../repository/films.repository.postgres';
 import { FilmsService } from './films.service';
 import { Film as FilmEntity } from './dto/entities/film.entity';
 
@@ -18,7 +19,13 @@ import { Film as FilmEntity } from './dto/entities/film.entity';
   controllers: [FilmsController],
   providers: [
     FilmsService,
-    { provide: 'FILM_REPOSITORY', useClass: FilmsRepository },
+    {
+      provide: 'FILM_REPOSITORY',
+      useClass:
+        process.env.DATABASE_DRIVER === 'mongodb'
+          ? FilmsRepository
+          : FilmsRepositoryPostgres,
+    },
   ],
   exports: ['FILM_REPOSITORY'],
 })
