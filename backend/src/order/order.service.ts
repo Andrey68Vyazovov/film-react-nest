@@ -81,7 +81,7 @@ export class OrderService {
         let takenSeats: string[] = [];
 
         if (schedule.taken) {
-          takenSeats = schedule.taken;
+          takenSeats = schedule.taken.split(','); // Преобразуем строку в массив
         }
 
         const selectedPlace = `${ticket.row}:${ticket.seat}`;
@@ -96,7 +96,7 @@ export class OrderService {
           }
         }
 
-        schedule.taken = takenSeats;
+        schedule.taken = takenSeats.join(','); // Преобразуем массив обратно в строку
 
         await this.filmsRepository.updateFilmSchedule(
           ticket.film,

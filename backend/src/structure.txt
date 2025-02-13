@@ -1,0 +1,44 @@
+﻿Структура папок
+Серийный номер тома: 6682-078F
+C:.
+│   app.config.provider.ts
+│   app.module.ts
+│   main.ts
+│   structure.txt
+│   
+├───database
+│       database.module.ts
+│       
+├───films
+│   │   films.controller.ts
+│   │   films.module.ts
+│   │   films.schema.ts
+│   │   films.service.ts
+│   │   TODO.md
+│   │   
+│   └───dto
+│       │   films.dto.ts
+│       │   
+│       └───entities
+│               film.entity.ts
+│               schedule.entity.ts
+│               
+├───order
+│   │   order.controller.ts
+│   │   order.module.ts
+│   │   order.service.ts
+│   │   TODO.md
+│   │   
+│   └───dto
+│       │   order.dto.ts
+│       │   
+│       └───entities
+│               order.entity.ts
+│               ticket.entity.ts
+│               
+└───repository
+        film.repository.ts
+        films.repository.postgres.ts
+        order.repository.ts
+        TODO.md
+        

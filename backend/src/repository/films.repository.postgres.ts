@@ -3,20 +3,36 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Film } from '../films/dto/entities/film.entity';
 import { Schedules } from '../films/dto/entities/schedule.entity';
+import {
+  GetFilmDto,
+  ScheduleDto,
+  GetScheduleDto,
+} from '../films/dto/films.dto';
+
+export interface IFilmsRepository {
+  findAll(): Promise<{ total: number; items: GetFilmDto[] }>;
+  findById(id: string): Promise<GetFilmDto>;
+  updateFilmSchedule(id: string, schedule: ScheduleDto[]): Promise<boolean>;
+  getFilmSchedule(id: string): Promise<GetScheduleDto[]>;
+}
 
 @Injectable()
-export class FilmsRepositoryPostgres {
+export class FilmsRepositoryPostgres implements IFilmsRepository {
   constructor(
     @InjectRepository(Film)
     private readonly filmsRepository: Repository<Film>,
+    @InjectRepository(Schedules)
+    private readonly schedulesRepository: Repository<Schedules>,
   ) {}
 
-  async findAll(): Promise<{ total: number; items: Film[] }> {
-    const [items, total] = await this.filmsRepository.findAndCount();
-    return { total, items };
+  async findAll(): Promise<{ total: number; items: GetFilmDto[] }> {
+    const [items, total] = await this.filmsRepository.findAndCount({
+      relations: ['schedule'],
+    });
+    return { total, items: items as GetFilmDto[] };
   }
 
-  async findById(id: string): Promise<Film> {
+  async findById(id: string): Promise<GetFilmDto> {
     const film = await this.filmsRepository.findOne({
       where: { id },
       relations: { schedule: true },
@@ -25,16 +41,46 @@ export class FilmsRepositoryPostgres {
     if (!film) {
       throw new NotFoundException(`Film with ID ${id} not found`);
     }
-    return film;
+    return film as GetFilmDto;
   }
 
   async updateFilmSchedule(
     id: string,
-    schedule: Schedules[],
-  ): Promise<{ acknowledged: boolean; modifiedCount: number }> {
+    scheduleDtos: ScheduleDto[],
+  ): Promise<boolean> {
+    try {
+      const film = await this.findById(id);
+
+      // Удаляем старые расписания
+      await this.schedulesRepository.remove(film.schedule);
+
+      // Создаем новые расписания на основе DTOs
+      const schedules: Schedules[] = scheduleDtos.map((scheduleDto) => {
+        const schedule = new Schedules();
+        schedule.daytime = scheduleDto.daytime;
+        schedule.hall = scheduleDto.hall;
+        schedule.rows = scheduleDto.rows;
+        schedule.seats = scheduleDto.seats;
+        schedule.price = scheduleDto.price;
+        schedule.taken = scheduleDto.taken;
+        schedule.film = film;
+        return schedule;
+      });
+
+      film.schedule = schedules;
+      await this.filmsRepository.save(film);
+      return true;
+    } catch (error) {
+      console.error('Error updating film schedule:', error);
+      return false;
+    }
+  }
+
+  async getFilmSchedule(id: string): Promise<GetScheduleDto[]> {
     const film = await this.findById(id);
-    film.schedule = schedule;
-    await this.filmsRepository.save(film);
-    return { acknowledged: true, modifiedCount: schedule.length };
+    if (!film || !film.schedule) {
+      throw new NotFoundException(`Schedule for film with ID ${id} not found`);
+    }
+    return film.schedule as GetScheduleDto[];
   }
 }

@@ -14,7 +14,8 @@ export interface IFilmsRepository {
 @Injectable()
 export default class FilmsRepository implements IFilmsRepository {
   constructor(
-    @InjectModel(Film.name) private readonly filmModel: Model<Film>,
+    @InjectModel(Film.name)
+    private readonly filmModel: Model<Film>,
   ) {}
 
   async findAll(): Promise<{ total: number; items: GetFilmDto[] }> {
@@ -26,14 +27,11 @@ export default class FilmsRepository implements IFilmsRepository {
   }
 
   async findById(id: string): Promise<GetFilmDto> {
-    try {
-      return await this.filmModel
-        .findOne({ id: id })
-        .lean<GetFilmDto>()
-        .orFail(() => new NotFoundException(`Film with id ${id} not found`));
-    } catch (e) {
-      throw new NotFoundException(`Film with id ${id} not found`);
-    }
+    return this.filmModel
+      .findOne({ id: id })
+      .lean<GetFilmDto>()
+      .orFail(() => new NotFoundException(`Film with id ${id} not found`))
+      .exec();
   }
 
   async updateFilmSchedule(

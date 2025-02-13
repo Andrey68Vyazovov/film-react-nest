@@ -1,32 +1,20 @@
 import { Module } from '@nestjs/common';
-import { MongooseModule } from '@nestjs/mongoose';
-import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
-import { Film, FilmSchema } from './films.schema';
 import { FilmsController } from './films.controller';
-import FilmsRepository from '../repository/film.repository';
-import { FilmsRepositoryPostgres } from '../repository/films.repository.postgres';
 import { FilmsService } from './films.service';
 import { Film as FilmEntity } from './dto/entities/film.entity';
+import { Schedules } from './dto/entities/schedule.entity';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { DatabaseModule } from '../database/database.module'; // Import DatabaseModule
 
 @Module({
   imports: [
     ConfigModule,
-    process.env.DATABASE_DRIVER === 'mongodb'
-      ? MongooseModule.forFeature([{ name: Film.name, schema: FilmSchema }])
-      : TypeOrmModule.forFeature([FilmEntity]),
+    TypeOrmModule.forFeature([FilmEntity, Schedules]),
+    DatabaseModule, // Import DatabaseModule
   ],
   controllers: [FilmsController],
-  providers: [
-    FilmsService,
-    {
-      provide: 'FILM_REPOSITORY',
-      useClass:
-        process.env.DATABASE_DRIVER === 'mongodb'
-          ? FilmsRepository
-          : FilmsRepositoryPostgres,
-    },
-  ],
-  exports: ['FILM_REPOSITORY'],
+  providers: [FilmsService],
+  exports: [FilmsService],
 })
 export class FilmsModule {}
