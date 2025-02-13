@@ -18,7 +18,7 @@ export class OrderService {
 
   constructor(
     private configService: ConfigService,
-    @Inject('FilmsRepository')
+    @Inject('FILM_REPOSITORY')
     private readonly filmsRepository: IFilmsRepository,
     private readonly ordersRepository: OrdersRepository,
   ) {
