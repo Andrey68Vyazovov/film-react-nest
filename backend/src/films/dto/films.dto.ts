@@ -16,7 +16,7 @@ export class ScheduleDto {
   @IsNumber()
   @Min(0)
   price: number;
-  @IsString() //  Изменить тип на string
+  @IsString()
   taken: string;
 }
 
@@ -34,7 +34,7 @@ export class GetFilmDto {
   rating: number;
   @IsString()
   director: string;
-  @IsString() //  Изменить тип на string
+  @IsString()
   tags: string;
   @IsString()
   title: string;
@@ -46,7 +46,7 @@ export class GetFilmDto {
   image: string;
   @IsString()
   cover: string;
-  schedule: Schedules[]; // Use the Schedules entity
+  schedule: Schedules[];
 }
 
 export class CreateScheduleDto extends ScheduleDto {}

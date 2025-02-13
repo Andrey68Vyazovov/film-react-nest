@@ -5,7 +5,6 @@ import {
   Inject,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { AppConfig } from 'src/app.config.provider';
 import { OrderDTO, TicketDTO } from './dto/order.dto';
 import { GetFilmDto } from '../films/dto/films.dto';
 import { IFilmsRepository } from '../repository/film.repository';
@@ -15,6 +14,7 @@ import { Schedules } from '../films/dto/entities/schedule.entity';
 @Injectable()
 export class OrderService {
   private readonly databaseDriver: string;
+  private takenSeatsMap: { [key: string]: string[] } = {};
 
   constructor(
     private configService: ConfigService,
@@ -22,8 +22,7 @@ export class OrderService {
     private readonly filmsRepository: IFilmsRepository,
     private readonly ordersRepository: OrdersRepository,
   ) {
-    this.databaseDriver =
-      this.configService.get<AppConfig['database']>('app.database')?.driver;
+    this.databaseDriver = this.configService.get<string>('DATABASE_DRIVER');
   }
 
   private async getFilmsByTickets(
@@ -73,35 +72,51 @@ export class OrderService {
   ): Promise<void> {
     for (const ticket of tickets) {
       const film = films.find((f) => f.id === ticket.film);
-      if (!film) continue;
+      if (!film) {
+        console.warn(`Film with id ${ticket.film} not found`);
+        continue;
+      }
 
       const schedule = film.schedule.find((s) => s.daytime === ticket.daytime);
 
-      if (schedule) {
-        let takenSeats: string[] = [];
+      if (!schedule) {
+        console.warn(
+          `Schedule not found for film ${ticket.film} and daytime ${ticket.daytime}`,
+        );
+        continue;
+      }
 
-        if (schedule.taken) {
-          takenSeats = schedule.taken.split(','); // Преобразуем строку в массив
+      const scheduleKey = `${film.id}-${schedule.daytime}`;
+
+      if (!this.takenSeatsMap[scheduleKey]) {
+        this.takenSeatsMap[scheduleKey] = schedule.taken
+          ? schedule.taken.split(',')
+          : [];
+      }
+
+      const takenSeats = this.takenSeatsMap[scheduleKey];
+
+      const selectedPlace = `${ticket.row}:${ticket.seat}`;
+      if (this.databaseDriver === 'postgres') {
+        if (!takenSeats.includes(selectedPlace)) {
+          takenSeats.push(selectedPlace);
         }
-
-        const selectedPlace = `${ticket.row}:${ticket.seat}`;
-
-        if (this.databaseDriver === 'postgres') {
-          if (!takenSeats.includes(selectedPlace)) {
-            takenSeats.push(selectedPlace);
-          }
-        } else if (this.databaseDriver === 'mongodb') {
-          if (!takenSeats.includes(selectedPlace)) {
-            takenSeats.push(selectedPlace);
-          }
+      } else if (this.databaseDriver === 'mongodb') {
+        if (!takenSeats.includes(selectedPlace)) {
+          takenSeats.push(selectedPlace);
         }
+      }
+      this.takenSeatsMap[scheduleKey] = takenSeats;
 
-        schedule.taken = takenSeats.join(','); // Преобразуем массив обратно в строку
+      schedule.taken = takenSeats.join(',');
 
+      try {
         await this.filmsRepository.updateFilmSchedule(
           ticket.film,
           film.schedule as Schedules[],
         );
+      } catch (error) {
+        console.error(`Ошибка при обновлении расписания фильма:`, error);
       }
     }
   }

@@ -51,12 +51,15 @@ export class FilmsRepositoryPostgres implements IFilmsRepository {
     try {
       const film = await this.findById(id);
 
-      // Удаляем старые расписания
-      await this.schedulesRepository.remove(film.schedule);
+      // Создаем карту существующих расписаний по daytime
+      const existingSchedulesMap = new Map(
+        film.schedule.map((schedule) => [schedule.daytime, schedule]),
+      );
 
-      // Создаем новые расписания на основе DTOs
-      const schedules: Schedules[] = scheduleDtos.map((scheduleDto) => {
-        const schedule = new Schedules();
+      // Обновляем или создаем расписания на основе DTOs
+      const updatedSchedules: Schedules[] = scheduleDtos.map((scheduleDto) => {
+        const schedule =
+          existingSchedulesMap.get(scheduleDto.daytime) || new Schedules();
         schedule.daytime = scheduleDto.daytime;
         schedule.hall = scheduleDto.hall;
         schedule.rows = scheduleDto.rows;
@@ -67,8 +70,9 @@ export class FilmsRepositoryPostgres implements IFilmsRepository {
         return schedule;
       });
 
-      film.schedule = schedules;
-      await this.filmsRepository.save(film);
+      film.schedule = updatedSchedules; // Присваиваем обновленный массив
+
+      await this.filmsRepository.save(film); // Сохраняем фильм с обновленным расписанием
       return true;
     } catch (error) {
       console.error('Error updating film schedule:', error);
