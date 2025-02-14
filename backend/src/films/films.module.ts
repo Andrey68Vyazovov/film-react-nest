@@ -11,7 +11,7 @@ import { DatabaseModule } from '../database/database.module'; // Import Database
   imports: [
     ConfigModule,
     TypeOrmModule.forFeature([FilmEntity, Schedules]),
-    DatabaseModule, // Import DatabaseModule
+    DatabaseModule,
   ],
   controllers: [FilmsController],
   providers: [FilmsService],

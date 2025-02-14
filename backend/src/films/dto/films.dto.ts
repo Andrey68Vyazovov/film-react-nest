@@ -1,5 +1,5 @@
 import { IsString, IsNumber, IsArray, IsInt, Min, Max } from 'class-validator';
-import { Schedules } from './entities/schedule.entity'; // Import the Schedules entity
+import { Schedules } from './entities/schedule.entity';
 
 export class ScheduleDto {
   @IsString()

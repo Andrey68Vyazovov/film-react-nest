@@ -70,7 +70,7 @@ export class FilmsRepositoryPostgres implements IFilmsRepository {
         return schedule;
       });
 
-      film.schedule = updatedSchedules; // Присваиваем обновленный массив
+      film.schedule = updatedSchedules;
 
       await this.filmsRepository.save(film); // Сохраняем фильм с обновленным расписанием
       return true;

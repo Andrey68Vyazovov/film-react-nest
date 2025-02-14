@@ -36,13 +36,13 @@ import FilmsRepository from 'src/repository/film.repository';
     TypeOrmModule.forFeature([Film, Schedules, Ticket, Order]),
   ],
   providers: [
-    FilmsRepositoryPostgres, // Оставляем только FilmsRepositoryPostgres
+    FilmsRepositoryPostgres,
     {
       provide: 'FILM_REPOSITORY',
       useFactory: (
         configService: ConfigService,
         postgresRepo: FilmsRepositoryPostgres,
-        mongoRepo: FilmsRepository, // Убираем mongoRepo
+        mongoRepo: FilmsRepository,
       ) => {
         const driver = configService.get<string>('DATABASE_DRIVER');
         if (driver === 'postgres') {
@@ -52,7 +52,7 @@ import FilmsRepository from 'src/repository/film.repository';
           return mongoRepo;
         }
       },
-      inject: [ConfigService, FilmsRepositoryPostgres], // Убираем mongoRepo
+      inject: [ConfigService, FilmsRepositoryPostgres],
     },
   ],
   exports: [TypeOrmModule, 'FILM_REPOSITORY'],
