@@ -2,19 +2,24 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Film } from '../films/films.schema';
-import { GetFilmDto, ScheduleDto } from '../films/dto/films.dto';
+import {
+  GetFilmDto,
+  ScheduleDto,
+  GetScheduleDto,
+} from '../films/dto/films.dto';
 
 export interface IFilmsRepository {
   findAll(): Promise<{ total: number; items: GetFilmDto[] }>;
   findById(id: string): Promise<GetFilmDto>;
   updateFilmSchedule(id: string, schedule: ScheduleDto[]): Promise<boolean>;
-  getFilmSchedule(id: string): Promise<ScheduleDto[]>;
+  getFilmSchedule(id: string): Promise<GetScheduleDto[]>;
 }
 
 @Injectable()
 export default class FilmsRepository implements IFilmsRepository {
   constructor(
-    @InjectModel(Film.name) private readonly filmModel: Model<Film>,
+    @InjectModel(Film.name)
+    private readonly filmModel: Model<Film>,
   ) {}
 
   async findAll(): Promise<{ total: number; items: GetFilmDto[] }> {
@@ -26,14 +31,11 @@ export default class FilmsRepository implements IFilmsRepository {
   }
 
   async findById(id: string): Promise<GetFilmDto> {
-    try {
-      return await this.filmModel
-        .findOne({ id: id })
-        .lean<GetFilmDto>()
-        .orFail(() => new NotFoundException(`Film with id ${id} not found`));
-    } catch (e) {
-      throw new NotFoundException(`Film with id ${id} not found`);
-    }
+    return this.filmModel
+      .findOne({ id: id })
+      .lean<GetFilmDto>()
+      .orFail(() => new NotFoundException(`Film with id ${id} not found`))
+      .exec();
   }
 
   async updateFilmSchedule(
@@ -52,13 +54,13 @@ export default class FilmsRepository implements IFilmsRepository {
     return true;
   }
 
-  async getFilmSchedule(id: string): Promise<ScheduleDto[]> {
+  async getFilmSchedule(id: string): Promise<GetScheduleDto[]> {
     const film = await this.findById(id);
 
     if (!film || !film.schedule || film.schedule.length === 0) {
       throw new NotFoundException(`Schedule for film with ID ${id} not found`);
     }
 
-    return film.schedule;
+    return film.schedule as GetScheduleDto[];
   }
 }

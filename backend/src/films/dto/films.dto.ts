@@ -1,14 +1,5 @@
-//TODO описать DTO для запросов к /films
-import {
-  IsFQDN,
-  IsString,
-  IsNumber,
-  IsArray,
-  ArrayNotEmpty,
-  IsInt,
-  Min,
-  Max,
-} from 'class-validator';
+import { IsString, IsNumber, IsArray, IsInt, Min, Max } from 'class-validator';
+import { Schedules } from './entities/schedule.entity';
 
 export class ScheduleDto {
   @IsString()
@@ -25,9 +16,8 @@ export class ScheduleDto {
   @IsNumber()
   @Min(0)
   price: number;
-  @IsArray()
-  @ArrayNotEmpty()
-  taken: string[];
+  @IsString()
+  taken: string;
 }
 
 export class GetScheduleDto extends ScheduleDto {
@@ -44,23 +34,21 @@ export class GetFilmDto {
   rating: number;
   @IsString()
   director: string;
-  @IsArray()
-  @ArrayNotEmpty()
-  tags: string[];
+  @IsString()
+  tags: string;
   @IsString()
   title: string;
   @IsString()
   about: string;
   @IsString()
   description: string;
-  @IsFQDN()
+  @IsString()
   image: string;
-  @IsFQDN()
+  @IsString()
   cover: string;
-  @IsArray()
-  @ArrayNotEmpty()
-  schedule: GetScheduleDto[];
+  schedule: Schedules[];
 }
+
 export class CreateScheduleDto extends ScheduleDto {}
 
 export class CreateFilmDto {
@@ -71,11 +59,10 @@ export class CreateFilmDto {
   @IsString()
   readonly director: string;
   @IsArray()
-  @ArrayNotEmpty()
   readonly tags: string[];
-  @IsFQDN()
+  @IsString()
   readonly image: string;
-  @IsFQDN()
+  @IsString()
   readonly cover: string;
   @IsString()
   readonly title: string;
@@ -83,10 +70,9 @@ export class CreateFilmDto {
   readonly about: string;
   @IsString()
   readonly description: string;
-  @IsArray()
-  @ArrayNotEmpty()
   readonly schedule: GetScheduleDto[];
 }
+
 export class FilmScheduleParams {
   @IsString()
   id: string;

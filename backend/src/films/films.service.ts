@@ -1,29 +1,13 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
-import FilmsRepository, {
-  IFilmsRepository,
-} from '../repository/film.repository';
-import { ConfigService } from '@nestjs/config';
-import { GetFilmDto, GetScheduleDto } from './dto/films.dto';
+import { Injectable, Inject, NotFoundException } from '@nestjs/common';
+import { IFilmsRepository } from '../repository/film.repository';
+import { GetFilmDto } from './dto/films.dto';
 
 @Injectable()
 export class FilmsService {
-  private filmsRepository: IFilmsRepository;
-
   constructor(
-    private configService: ConfigService,
-    private readonly mongoRepository: FilmsRepository,
-  ) {
-    this.filmsRepository = this.mongoRepository;
-    this.ensureMongoDriver();
-  }
-
-  private ensureMongoDriver(): void {
-    const databaseDriver = this.configService.get<string>('DATABASE_DRIVER');
-    console.log('Database Driver:', databaseDriver);
-    if (databaseDriver !== 'mongodb') {
-      throw new Error('Unsupported database driver');
-    }
-  }
+    @Inject('FILM_REPOSITORY')
+    private readonly filmsRepository: IFilmsRepository,
+  ) {}
 
   private async handleDatabaseOperation<T>(
     operation: () => Promise<T>,
@@ -33,7 +17,7 @@ export class FilmsService {
       return await operation();
     } catch (error) {
       if (error instanceof NotFoundException) {
-        throw error; // Передаём NotFoundException без изменений
+        throw error;
       }
       throw new Error(
         `Failed to ${operationDescription}. Error: ${error.message}`,
@@ -41,18 +25,31 @@ export class FilmsService {
     }
   }
 
+  private deserializeTags(film: GetFilmDto): GetFilmDto {
+    if (film?.tags && typeof film.tags === 'string') {
+      film.tags = film.tags.split(',').join(',');
+    }
+    return film;
+  }
+
   async findAll(): Promise<{ total: number; items: GetFilmDto[] }> {
-    return this.handleDatabaseOperation(
+    const result = await this.handleDatabaseOperation(
       () => this.filmsRepository.findAll(),
       'get all films',
     );
+
+    // Десериализация tags для каждого фильма
+    result.items = result.items.map((film) => this.deserializeTags(film));
+
+    return result;
   }
-  async findById(
-    id: string,
-  ): Promise<{ total: number; items: GetScheduleDto[] }> {
-    return this.handleDatabaseOperation(async () => {
-      const result = await this.filmsRepository.findById(id);
-      return { total: result.schedule.length, items: result.schedule };
+
+  async findById(id: string): Promise<GetFilmDto> {
+    const film = await this.handleDatabaseOperation(async () => {
+      return await this.filmsRepository.findById(id);
     }, `get film with ID ${id}`);
+
+    // Десериализация tags
+    return this.deserializeTags(film);
   }
 }
