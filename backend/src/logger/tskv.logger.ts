@@ -25,7 +25,7 @@ export class TskvLogger implements LoggerService {
   }
 
   private logWithLevel(
-    level: 'log' | 'error' | 'warn',
+    level: 'log' | 'error' | 'warn' | 'verbose' | 'debug',
     message: unknown,
     ...optionalParams: unknown[]
   ) {
@@ -39,6 +39,8 @@ export class TskvLogger implements LoggerService {
       log: console.log,
       error: console.error,
       warn: console.warn,
+      verbose: console.log,
+      debug: console.debug,
     };
 
     const output = consoleMethods[level];
@@ -55,5 +57,13 @@ export class TskvLogger implements LoggerService {
 
   warn(message: unknown, ...optionalParams: unknown[]) {
     this.logWithLevel('warn', message, ...optionalParams);
+  }
+
+  verbose?(message: unknown, ...optionalParams: unknown[]) {
+    this.logWithLevel('verbose', message, ...optionalParams);
+  }
+
+  debug?(message: unknown, ...optionalParams: unknown[]) {
+    this.logWithLevel('debug', message, ...optionalParams);
   }
 }
